@@ -1,9 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import './ContactForm-styled.css';
 
 export const ContactForm = ({ addContact }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const [contacts, setContacts] = useState([]);
+
+  useEffect(() => {
+    const savedContacts = localStorage.getItem('contacts');
+    if (savedContacts) {
+      setContacts(JSON.parse(savedContacts));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -21,6 +34,10 @@ export const ContactForm = ({ addContact }) => {
 
     setName('');
     setNumber('');
+  };
+
+  const handleAddContact = contact => {
+    setContacts(prevContacts => [...prevContacts, contact]);
   };
 
   return (
@@ -53,9 +70,16 @@ export const ContactForm = ({ addContact }) => {
           onChange={handleChange}
         />
       </label>
-      <button type="submit" className="Form__btn__styled">
+      <button
+        type="submit"
+        className="Form__btn__styled"
+        onClick={() => handleAddContact({ name, number })}
+      >
         Add contact
       </button>
     </form>
   );
+};
+ContactForm.propTypes = {
+  addContact: PropTypes.func.isRequired,
 };
